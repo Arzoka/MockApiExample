@@ -1,12 +1,16 @@
 import { ClassType } from '@/types/MockApi/ClassType.ts';
+import { Constants } from '@/types/MockApi/Constants.ts';
 
-type EventType = {
-	id: number,
-	dateTime: Date,
+type CreateEventType = {
 	title: string,
 	desc: string,
+	date: Date,
+	startTime: Date,
+	endTime: Date,
 	class: ClassType,
 	learnMake: 'Learn' | 'Make',
 }
 
-export type { EventType };
+type EventType = CreateEventType & Constants;
+
+export type { CreateEventType, EventType };

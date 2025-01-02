@@ -1,6 +1,10 @@
-type ClassType = {
-	id: number,
+import { Constants } from '@/types/MockApi/Constants.ts';
+
+type CreateClassType = {
 	name: string,
+	color: string,
 }
 
-export type { ClassType };
+type ClassType = CreateClassType & Constants;
+
+export type { ClassType, CreateClassType };

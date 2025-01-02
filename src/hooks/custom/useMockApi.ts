@@ -11,6 +11,13 @@ const useMockApi = () => {
 			update: api.events.update,
 			delete: api.events.delete,
 		},
+		classes: {
+			getAll: api.classes.getAll,
+			get: api.classes.get,
+			create: api.classes.create,
+			update: api.classes.update,
+			delete: api.classes.delete,
+		}
 	};
 };
 

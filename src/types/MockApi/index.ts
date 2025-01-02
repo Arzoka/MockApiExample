@@ -1,5 +1,5 @@
-import { EventType } from '@/types/MockApi/EventType.ts';
-import { ClassType } from '@/types/MockApi/ClassType.ts';
+import { EventType, CreateEventType } from '@/types/MockApi/EventType.ts';
+import { ClassType, CreateClassType } from '@/types/MockApi/ClassType.ts';
 
 // types
-export type { EventType, ClassType };
+export type { EventType, CreateEventType, ClassType, CreateClassType };

@@ -1,65 +1,42 @@
-import { EventType } from '@/types/MockApi';
+import { ClassType, CreateClassType, CreateEventType, EventType } from '@/types/MockApi';
+import { LocalStorage, Validator } from '@/util/MockApi';
 
 export default class MockApi {
-	private localStorage = {
-		getItems<T>(key: string, fallback: T = null as T): T {
-			const data = localStorage.getItem(key);
-			return data ? JSON.parse(data) : fallback;
-		},
+	// Event methods
+	public events = {
+		getAll: (): EventType[] => LocalStorage.getItems<EventType[]>( 'events', [] ),
+		get: ( id: string ): EventType | null => this.events.getAll().find( ( event ) => event.id === id ) || null,
+		create: ( data: CreateEventType ): EventType => {
+			Validator.validate( data, {
+				startTime: ( data ) => ( data.startTime < data.endTime ) || 'Start time must be before end time',
+				class: ( data ) => this.classes.get( data.class.id ) !== null || `Class with id: ${data.class.id} not found`,
+			} );
 
-		setItems<T>(key: string, data: T): void {
-			localStorage.setItem(key, JSON.stringify(data));
+			return LocalStorage.addItem<CreateEventType>( 'events', data );
 		},
-
-		addItem<T>(key: string, data: T): void {
-			const items = this.getItems<T[]>(key, []);
-			items.push(data);
-			this.setItems(key, items);
-		},
-
-		deleteItem(key: string, id: number, identifier: string): void {
-			const items = this.getItems<any[]>(key, []);
-			const index = items.findIndex((item) => item[identifier] === id);
-			if (index !== -1) {
-				items.splice(index, 1);
-				this.setItems(key, items);
-			}
-		},
-
-		updateItem<T extends { id: number }>(
-			key: string,
-			id: number,
-			data: T
-		): void {
-			const items = this.getItems<T[]>(key, []);
-			const index = items.findIndex((item) => item.id === id);
-			if (index !== -1) {
-				items[index] = data;
-				this.setItems(key, items);
-			}
-		},
+		// TODO: play around w validator on these
+		update: ( id: string, data: EventType ) => LocalStorage.updateItem<EventType>( 'events', id, data ),
+		delete: ( id: string ): string | undefined => LocalStorage.deleteItem( 'events', id, 'id' ),
 	};
 
-	public events = {
-		getAll: (): EventType[] => {
-			return this.localStorage.getItems<EventType[]>('events', []);
-		},
+	// Class methods
+	public classes = {
+		getAll: (): ClassType[] => LocalStorage.getItems<ClassType[]>( 'classes', [] ),
+		get: ( id: string ): ClassType | null => this.classes.getAll().find( ( classType ) => classType.id === id ) || null,
+		create: ( data: CreateClassType ): ClassType => LocalStorage.addItem<CreateClassType>( 'classes', data ),
+		update: ( id: string, data: ClassType ): ClassType | undefined => {
+			Validator.validate( data, {
+				id: () => this.classes.get( id ) !== null || `Class with id: ${ id } not found`,
+			} );
 
-		get: (id: number): EventType | null => {
-			const events = this.events.getAll();
-			return events.find((event) => event.id === id) || null;
+			return LocalStorage.updateItem<ClassType>( 'classes', id, data );
 		},
+		delete: ( id: string ): string | undefined => {
+			Validator.validate( {}, {
+				id: () => this.classes.get( id ) !== null || `Class with id: ${ id } not found`,
+			} );
 
-		create: (data: EventType): void => {
-			this.localStorage.addItem<EventType>('events', data);
-		},
-
-		update: (id: number, data: EventType): void => {
-			this.localStorage.updateItem<EventType>('events', id, data);
-		},
-
-		delete: (id: number): void => {
-			this.localStorage.deleteItem('events', id, 'id');
+			return LocalStorage.deleteItem( 'classes', id, 'id' );
 		},
 	};
 }
